@@ -8,12 +8,6 @@
 - FAISS 인덱싱/저장/로드
 - 쿼리 기반 Top-k 검색 CLI
 
-## 오늘 제외 범위
-
-- CRAG / corrective retrieval
-- reranker / hybrid retrieval
-- 평가 지표(Recall@k, MRR, EM, F1 등)
-- OpenAI API / 답변 생성 파이프라인
 
 ## 폴더 구조
 
@@ -92,3 +86,8 @@ python scripts/search_demo.py --index_dir data/processed/index --top_k 5 --query
 ## 다음 단계 아이디어
 
 다음 스테이지에서 CRAG-lite, 평가 파이프라인, 생성기(LLM) 연결을 순차적으로 확장할 수 있습니다.
+
+- CRAG / corrective retrieval
+- reranker / hybrid retrieval
+- 평가 지표(Recall@k, MRR, EM, F1 등)
+- OpenAI API / 답변 생성 파이프라인
