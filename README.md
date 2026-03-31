@@ -1,8 +1,5 @@
 # RAG Reproduction: Baseline Retrieval (Stage 1)
 
-이 프로젝트는 학생 친화적인 RAG 재현 프로젝트의 1단계입니다.  
-오늘 범위는 **문서 검색(retrieval) 파이프라인만** 구현합니다.
-
 ## 오늘 구현 범위
 
 - 문서 로딩 (`.txt`, `.pdf`)
