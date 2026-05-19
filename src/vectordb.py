@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import ctypes
 
 import faiss
 import numpy as np
@@ -52,7 +53,8 @@ class FaissVectorDB:
 
         out_dir = Path(index_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
-        faiss.write_index(self.index, str(out_dir / "index.faiss"))
+        index_path = _faiss_safe_path(out_dir / "index.faiss")
+        faiss.write_index(self.index, index_path)
         save_json([chunk_to_dict(c) for c in self.chunks], out_dir / "chunks.json")
 
     @classmethod
@@ -66,7 +68,34 @@ class FaissVectorDB:
         if not chunks_path.exists():
             raise FileNotFoundError(f"Chunk metadata not found: {chunks_path}")
 
-        index = faiss.read_index(str(index_path))
+        index = faiss.read_index(_faiss_safe_path(index_path))
         chunk_dicts = load_json(chunks_path)
         chunks = [chunk_from_dict(item) for item in chunk_dicts]
         return cls(index=index, chunks=chunks)
+
+
+def _faiss_safe_path(path: str | Path) -> str:
+    """
+    Convert path into a FAISS-friendly string on Windows.
+
+    FAISS wheels on Windows may fail on non-ASCII paths. When possible,
+    use the Windows short path (8.3) representation as a workaround.
+    """
+    resolved = str(Path(path).resolve())
+
+    if resolved.isascii():
+        return resolved
+
+    try:
+        buffer = ctypes.create_unicode_buffer(32768)
+        result = ctypes.windll.kernel32.GetShortPathNameW(resolved, buffer, len(buffer))
+        short_path = buffer.value if result else ""
+        if short_path and Path(short_path).exists():
+            return short_path
+    except Exception:
+        pass
+
+    raise RuntimeError(
+        "FAISS could not access a non-ASCII path on Windows. "
+        f"Please move the project to an ASCII-only path or enable 8.3 short paths. Problem path: {resolved}"
+    )

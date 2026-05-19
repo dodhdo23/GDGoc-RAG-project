@@ -1,4 +1,4 @@
-"""Embedding wrapper based on sentence-transformers."""
+﻿"""Embedding wrapper based on sentence-transformers."""
 
 from __future__ import annotations
 
@@ -18,7 +18,15 @@ class SentenceTransformerEmbedder:
     ) -> None:
         self.model_name = model_name
         self.normalize_embeddings = normalize_embeddings
-        self.model = SentenceTransformer(model_name)
+        try:
+            self.model = SentenceTransformer(model_name)
+        except Exception as exc:
+            raise RuntimeError(
+                "Failed to load the embedding model. On the first run, "
+                "sentence-transformers may need internet access to download the model, "
+                "or you can pass a local model path via --model_name. "
+                f"Requested model: {model_name}"
+            ) from exc
 
     def embed_texts(self, texts: Sequence[str]) -> np.ndarray:
         """Embed a list of texts and return float32 numpy array."""
